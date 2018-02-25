@@ -6,7 +6,7 @@ import datetime
 
 def make_limits_list() :
     # make soup
-    time = str(datetime.datetime.now())
+    time = datetime.datetime.now().isoformat()
     limitslink = 'https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html'
     page = urllib2.urlopen(limitslink)
     soup = BeautifulSoup(page, 'html.parser')
@@ -30,7 +30,7 @@ def make_limits_list() :
         for row in t.findAll("tr"):
             cells = row.findAll("td")
             if len(cells) > 0:
-                dquest["Number"] = "Question " + str(question_num)
+                dquest["Number"] = question_num
                 dquest["Question"] = repr(cells[0].getText(" ", strip=True)).replace('\\n','')
                 dquest["Question"] = ' '.join(dquest["Question"].split())
                 dquest["Question"] = dquest["Question"][2:-1]
@@ -38,8 +38,9 @@ def make_limits_list() :
                 dquest["Answer"] = ' '.join(dquest["Answer"].split())
                 dquest["Answer"] = dquest["Answer"][2:-1]
                 dquest["Time"] = time
-                dtopic["Questions"].append(dict(dquest))
-                question_num += 1
+                if len(dquest["Answer"]) > 0 and  len(dquest["Question"]) > 0 :
+                    dtopic["Questions"].append(dict(dquest))
+                    question_num += 1
         limitslist.append(dict(dtopic))
     return limitslist 
 
@@ -58,7 +59,7 @@ def make_table(mylist) :
                 Item={
                     'Topic':{'S': topic },
                     'Question':{'S': (q['Question'])},
-                    'QuestionNumber':{'S': q['Number']},
+                    'QuestionNumber':{'N': str(q['Number'])},
                     'Answer':{'S': q['Answer']},
                     'Time':{'S':q['Time']}
                 }
